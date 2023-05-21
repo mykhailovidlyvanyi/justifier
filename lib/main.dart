@@ -136,12 +136,16 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          navigateToCreateItemScreen(context);
-        },
-        child: Icon(Icons.add),
-      ),
+      persistentFooterButtons: [
+        Center(
+          child: FloatingActionButton(
+            onPressed: () {
+              navigateToCreateItemScreen(context);
+              },
+            child: Icon(Icons.add),
+          ),
+        ),
+      ]
     );
   }
 }
