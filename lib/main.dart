@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Item> items = [];
   late Database database;
   late String path;
+  double dailyPayment = 0.0;
 
   Future<void> _initializeDatabase() async {
     String databasesPath = await getDatabasesPath();
@@ -61,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       items = itemList;
     });
     path = dbPath;
+    calculateDailyPayment();
   }
 
   @override
@@ -73,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       items.add(item);
     });
+    calculateDailyPayment();
   }
 
   void deleteItem(Item item) async {
@@ -90,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         items.remove(item);
       });
+      calculateDailyPayment();
     }
   }
 
@@ -105,13 +109,40 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> calculateDailyPayment() async {
+    double total = 0.0;
+
+    for (var item in items) {
+      double roundedDailyItemPrice = double.parse(item.calculateDailyPrice().toStringAsFixed(2));
+      total += roundedDailyItemPrice;
+    }
+
+    setState(() {
+      dailyPayment = total;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     items.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: Text(widget.title),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                'Daily payment: \$${dailyPayment.toStringAsFixed(2)}', style: TextStyle(fontSize: 14.0),
+              ),
+            ),
+          ]
+        ),
       ),
       body: Column(
         children: [
