@@ -265,19 +265,20 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                 decoration: InputDecoration(
                   labelText: 'Purchase Price',
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a purchase price';
                   }
-                  final price = double.tryParse(value);
+                  final price = double.tryParse(value.replaceAll(',', '.'));
                   if (price == null || price <= 0) {
                     return 'Please enter a valid purchase price';
                   }
                   return null;
                 },
                 onSaved: (value) {
-                  purchasePrice = double.parse(value!);
+                  final parsedValue = value?.replaceAll(',', '.');
+                  purchasePrice = parsedValue != null ? double.parse(parsedValue) : null;
                 },
               ),
               SizedBox(height: 16.0),
