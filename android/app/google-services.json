@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "226027760941",
+    "project_id": "justifier-73958",
+    "storage_bucket": "justifier-73958.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226027760941:android:4e244a12d9d8fcc1bfb7a4",
+        "android_client_info": {
+          "package_name": "com.example.justifier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY5h37oZzmOZAvQRk8GIYiIDBd2mrMRF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

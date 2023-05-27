@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, '/registration');
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   void navigateToCreateItemScreen(BuildContext context) async {
