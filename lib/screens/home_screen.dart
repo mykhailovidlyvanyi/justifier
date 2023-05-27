@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 import '../models/item.dart';
 import '../screens/create_item_screen.dart';
+import '../screens/registration_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   final String databasePath;
@@ -13,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
+
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -76,6 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacementNamed(context, '/registration');
+  }
+
   void navigateToCreateItemScreen(BuildContext context) async {
     final result = await Navigator.push(
       context,
@@ -124,6 +134,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () => logout(context),
+          ),
+        ],
       ),
       body: Column(
         children: [
