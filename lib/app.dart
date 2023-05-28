@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/home_screen.dart';
 import 'screens/registration_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 
 class MyApp extends StatefulWidget {
   final String databasePath;
@@ -56,7 +57,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       // Показати спінер або екран завантаження, поки перевіряється користувач
-      return CircularProgressIndicator();
+      return SplashScreen();
     } else {
       return MaterialApp(
         title: 'My App',
