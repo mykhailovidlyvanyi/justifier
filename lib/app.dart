@@ -16,32 +16,58 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late User? currentUser;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    checkCurrentUser();
+    checkUserExistence();
   }
 
-  Future<void> checkCurrentUser() async {
+  Future<void> checkUserExistence() async {
+    bool doesUserExist = await checkUserExistenceFirebase();
+    setState(() {
+      currentUser = doesUserExist ? FirebaseAuth.instance.currentUser : null;
+      isLoading = false;
+    });
+  }
+
+  Future<bool> checkUserExistenceFirebase() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
-    setState(() {
-      currentUser = user;
-    });
+
+    if (user != null) {
+      try {
+        await user.reload();
+        user = auth.currentUser;
+
+        if (user != null) {
+          return true; // Користувач існує в Firebase
+        }
+      } catch (e) {
+        print('Помилка перевірки існування користувача: $e');
+      }
+    }
+
+    return false; // Користувач не існує в Firebase
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My App',
-      initialRoute: '/',
-      routes: {
-        '/': (context) => currentUser != null ? HomeScreen(databasePath: widget.databasePath) : LoginScreen(),
-        '/registration': (context) => RegistrationScreen(),
-        '/login': (context) => LoginScreen(),
-        '/home': (context) => HomeScreen(databasePath: widget.databasePath),
-      },
-    );
+    if (isLoading) {
+      // Показати спінер або екран завантаження, поки перевіряється користувач
+      return CircularProgressIndicator();
+    } else {
+      return MaterialApp(
+        title: 'My App',
+        initialRoute: '/',
+        routes: {
+          '/': (context) => currentUser != null ? HomeScreen(databasePath: widget.databasePath) : LoginScreen(),
+          '/registration': (context) => RegistrationScreen(),
+          '/login': (context) => LoginScreen(),
+          '/home': (context) => HomeScreen(databasePath: widget.databasePath),
+        },
+      );
+    }
   }
 }
