@@ -56,7 +56,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   void navigateToHomeScreen(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen(databasePath: databasePath)),
+      MaterialPageRoute(builder: (context) => HomeScreen()),
     );
   }
 

@@ -1,58 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/item.dart';
 import '../screens/create_item_screen.dart';
 import '../screens/registration_screen.dart';
 
-
 class HomeScreen extends StatefulWidget {
-  final String databasePath;
-
-  const HomeScreen({Key? key, required this.databasePath}) : super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
-
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Item> items = [];
-  late Database database;
-  late String path;
   double dailyPayment = 0.0;
-
-  Future<void> _initializeDatabase() async {
-    String databasesPath = await getDatabasesPath();
-    String dbPath = join(databasesPath, 'items.db');
-
-    database = await openDatabase(dbPath, version: 1,
-        onCreate: (Database db, int version) async {
-          await db.execute(
-              'CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT, purchasePrice REAL, purchaseDate TEXT)');
-        });
-
-    List<Map<String, dynamic>> rows = await database.query('items');
-    List<Item> itemList = [];
-    for (var row in rows) {
-      itemList.add(Item.fromMap(row));
-    }
-
-    setState(() {
-      items = itemList;
-    });
-    path = dbPath;
-    calculateDailyPayment();
-  }
 
   @override
   void initState() {
     super.initState();
-    _initializeDatabase();
+    _initializeData();
+  }
+
+  void _initializeData() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('items')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    final itemList = snapshot.docs.map((doc) => Item.fromMap(doc.data())).toList();
+
+    setState(() {
+      items = itemList;
+    });
+
+    calculateDailyPayment();
   }
 
   void addItem(Item item) {
@@ -62,23 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
     calculateDailyPayment();
   }
 
-  void deleteItem(Item item) async {
-    if (item != null) {
-      final databasePath = await getDatabasesPath();
-      final dbPath = join(databasePath, 'items.db');
-
-      final database = await openDatabase(dbPath, version: 1);
-      print(item.id);
-      await database.delete('items', where: 'id = ?', whereArgs: [item.id]);
-      await database.close();
-
-      _initializeDatabase();
-
-      setState(() {
-        items.remove(item);
-      });
-      calculateDailyPayment();
-    }
+  void deleteItem(Item item) {
+    setState(() {
+      items.remove(item);
+    });
+    calculateDailyPayment();
   }
 
   Future<void> logout(BuildContext context) async {
@@ -90,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CreateItemScreen(database: database),
+        builder: (context) => CreateItemScreen(),
       ),
     );
     if (result != null) {
@@ -98,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> calculateDailyPayment() async {
+  void calculateDailyPayment() {
     double total = 0.0;
 
     for (var item in items) {
@@ -123,20 +96,20 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Align(
               alignment: Alignment.center,
-              child: Text('Justifier'),
+              child: const Text('Justifier'),
             ),
             Align(
               alignment: Alignment.center,
               child: Text(
                 'Daily payment: \$${dailyPayment.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 14.0),
+                style: const TextStyle(fontSize: 14.0),
               ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () => logout(context),
           ),
         ],
@@ -170,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               navigateToCreateItemScreen(context);
             },
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
           ),
         ),
       ],

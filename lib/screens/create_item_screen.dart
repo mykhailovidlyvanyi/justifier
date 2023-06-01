@@ -1,13 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
 
 import '../models/item.dart';
 
 class CreateItemScreen extends StatefulWidget {
-  final Database database;
-
-  const CreateItemScreen({Key? key, required this.database}) : super(key: key);
+  const CreateItemScreen({Key? key}) : super(key: key);
 
   @override
   _CreateItemScreenState createState() => _CreateItemScreenState();
@@ -48,11 +47,29 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
         name: itemName!,
         purchasePrice: purchasePrice!,
         purchaseDate: selectedDate!,
+        userId: FirebaseAuth.instance.currentUser!.uid,
       );
 
-      await widget.database.insert('items', item.toMap());
-
-      Navigator.pop(context, item);
+      try {
+        await FirebaseFirestore.instance.collection('items').add(item.toMap());
+        Navigator.pop(context, item);
+      } catch (error) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to save item.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 

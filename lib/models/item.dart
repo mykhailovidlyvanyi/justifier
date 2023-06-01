@@ -5,19 +5,22 @@ class Item {
   final String name;
   final double purchasePrice;
   final DateTime purchaseDate;
+  String userId; // Додано поле userId
 
   Item({
     this.id,
     required this.name,
     required this.purchasePrice,
     required this.purchaseDate,
+    required this.userId,
   });
 
   Item.fromMap(Map<String, dynamic> map)
       : id = map['id'],
         name = map['name'],
         purchasePrice = map['purchasePrice'],
-        purchaseDate = DateTime.parse(map['purchaseDate']);
+        purchaseDate = DateTime.parse(map['purchaseDate']),
+        userId = map['userId'];
 
   Map<String, dynamic> toMap() {
     return {
@@ -25,6 +28,7 @@ class Item {
       'name': name,
       'purchasePrice': purchasePrice,
       'purchaseDate': purchaseDate.toIso8601String(),
+      'userId': userId,
     };
   }
 
@@ -34,3 +38,4 @@ class Item {
     return purchasePrice / (daysSincePurchase + 1);
   }
 }
+

@@ -63,10 +63,10 @@ class _MyAppState extends State<MyApp> {
         title: 'My App',
         initialRoute: '/',
         routes: {
-          '/': (context) => currentUser != null ? HomeScreen(databasePath: widget.databasePath) : LoginScreen(),
+          '/': (context) => currentUser != null ? HomeScreen() : LoginScreen(),
           '/registration': (context) => RegistrationScreen(),
           '/login': (context) => LoginScreen(),
-          '/home': (context) => HomeScreen(databasePath: widget.databasePath),
+          '/home': (context) => HomeScreen(),
         },
       );
     }
