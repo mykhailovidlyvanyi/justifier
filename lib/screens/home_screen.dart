@@ -79,6 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) => EditItemScreen(item: item),
       ),
     );
+    if (result == false) {
+      // Видаліть айтем зі списку, якщо він був видалений
+      deleteItem(item);
+    }
     if (result != null) {
       updateItem(result);
     }
@@ -101,7 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
       double roundedDailyItemPrice =
       double.parse(item.calculateDailyPrice().toStringAsFixed(2));
       total += roundedDailyItemPrice;
-      print(total);
     }
 
     setState(() {
@@ -147,9 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 return GestureDetector(
                   onTap: () {
                     navigateToEditItemScreen(context, items[index]);
-                  },
-                  onDoubleTap: () {
-                    deleteItem(items[index]);
                   },
                   child: ListTile(
                     title: Text(items[index].name),

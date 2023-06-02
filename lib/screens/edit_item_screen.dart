@@ -55,7 +55,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
   }
 
   void _submitForm(BuildContext context) async {
-    if (_formKey.currentState!.validate() && selectedDate != null) {
+    if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final updatedItem = Item(
         id: widget.item.id,
@@ -66,7 +66,8 @@ class _EditItemScreenState extends State<EditItemScreen> {
       );
 
       try {
-        final itemRef = FirebaseFirestore.instance.collection('items').doc(widget.item.id.toString());
+        final itemRef =
+        FirebaseFirestore.instance.collection('items').doc(widget.item.id.toString());
         final currentItemSnapshot = await itemRef.get();
         final currentItemUserId = currentItemSnapshot['userId'];
 
@@ -91,8 +92,6 @@ class _EditItemScreenState extends State<EditItemScreen> {
           );
         }
       } catch (error) {
-        print(currentUserId);
-        print(widget.item.id.toString());
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -112,11 +111,94 @@ class _EditItemScreenState extends State<EditItemScreen> {
     }
   }
 
+  void _deleteItem(BuildContext context) async {
+    try {
+      final itemRef =
+          FirebaseFirestore.instance.collection('items').doc(widget.item.id.toString());
+      final currentItemSnapshot = await itemRef.get();
+      final currentItemUserId = currentItemSnapshot['userId'];
+
+      if (currentItemUserId == currentUserId) {
+        await itemRef.delete();
+        Navigator.pop(context, false);
+      } else {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Access Denied'),
+            content: Text('You do not have permission to delete this item.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (error) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to delete item.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Item'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text('Confirm Deletion'),
+                  content: Text('Are you sure you want to delete this item?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text(
+                        'Delete',
+                         style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent), // Встановити прозорий фоновий колір кнопки
+                      ),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        _deleteItem(context);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
