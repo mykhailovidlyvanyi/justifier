@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class Item {
-  final int? id;
+  final String? id;
   final String name;
   final double purchasePrice;
   final DateTime purchaseDate;

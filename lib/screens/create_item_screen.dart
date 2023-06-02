@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/item.dart';
 
@@ -43,7 +44,12 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
   void _submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate() && selectedDate != null) {
       _formKey.currentState!.save();
+
+      final itemId = Uuid().v4();
+      print(itemId);
+
       final item = Item(
+        id: itemId,
         name: itemName!,
         purchasePrice: purchasePrice!,
         purchaseDate: selectedDate!,
@@ -51,7 +57,7 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
       );
 
       try {
-        await FirebaseFirestore.instance.collection('items').add(item.toMap());
+        await FirebaseFirestore.instance.collection('items').doc(itemId).set(item.toMap());
         Navigator.pop(context, item);
       } catch (error) {
         showDialog(

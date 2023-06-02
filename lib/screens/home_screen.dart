@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/item.dart';
 import '../screens/create_item_screen.dart';
+import '../screens/edit_item_screen.dart';
 import '../screens/registration_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,6 +72,28 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> navigateToEditItemScreen(BuildContext context, Item item) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditItemScreen(item: item),
+      ),
+    );
+    if (result != null) {
+      updateItem(result);
+    }
+  }
+
+  void updateItem(Item updatedItem) {
+    setState(() {
+      final index = items.indexWhere((item) => item.id == updatedItem.id);
+      if (index != -1) {
+        items[index] = updatedItem;
+      }
+    });
+    calculateDailyPayment();
+  }
+
   void calculateDailyPayment() {
     double total = 0.0;
 
@@ -78,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
       double roundedDailyItemPrice =
       double.parse(item.calculateDailyPrice().toStringAsFixed(2));
       total += roundedDailyItemPrice;
+      print(total);
     }
 
     setState(() {
@@ -121,6 +145,9 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
+                  onTap: () {
+                    navigateToEditItemScreen(context, items[index]);
+                  },
                   onDoubleTap: () {
                     deleteItem(items[index]);
                   },
