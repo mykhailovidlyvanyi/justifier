@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Додано імпорт для Firestore
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,6 +8,7 @@ import '../firebase_options.dart';
 
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/currency_selection_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   @override
@@ -33,6 +35,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
+  void createUserDocument(User user) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .set({
+      'email': user.email,
+      'userId': user.uid, // Додано поле "userId" зі значенням користувача
+      // Додайте інші дані про користувача, які вам потрібні
+    })
+        .then((value) {
+      print('Запис про користувача створено успішно');
+    })
+        .catchError((error) {
+      print('Помилка при створенні запису про користувача: $error');
+    });
+  }
+
   void registerUser(BuildContext context) async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -42,21 +61,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         email: email,
         password: password,
       );
-      // Реєстрація успішна, ви можете виконати необхідні дії після реєстрації
       User? user = userCredential.user;
       print('Успішна реєстрація. User ID: ${user?.uid}');
-      navigateToHomeScreen(context);
+
+      createUserDocument(user!); // Створення запису про користувача у Firestore
+
+      navigateToCurrencySelectionScreen(context);
     } catch (e) {
-      // Помилка реєстрації, обробіть відповідно
       print('Помилка реєстрації: $e');
-      // Обробка помилки реєстрації
     }
   }
 
-  void navigateToHomeScreen(BuildContext context) {
+  void navigateToCurrencySelectionScreen(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => CurrencySelectionScreen()),
     );
   }
 
@@ -93,7 +112,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                     ),
-                    keyboardType: TextInputType.emailAddress, // Встановлення типу клавіатури на електронну адресу
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 16.0),
                   TextField(
@@ -101,7 +120,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                     ),
-                    keyboardType: TextInputType.visiblePassword, // Встановлення типу клавіатури на видимий пароль
+                    keyboardType: TextInputType.visiblePassword,
                     obscureText: true,
                   ),
                   SizedBox(height: 32.0),

@@ -7,6 +7,7 @@ import '../models/item.dart';
 import '../screens/create_item_screen.dart';
 import '../screens/edit_item_screen.dart';
 import '../screens/registration_screen.dart';
+import '../screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,11 +19,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Item> items = [];
   double dailyPayment = 0.0;
+  String currencySymbol = '\$'; // Default currency symbol
 
   @override
   void initState() {
     super.initState();
     _initializeData();
+    _fetchSelectedCurrencySymbol();
   }
 
   void _initializeData() async {
@@ -80,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
     if (result == false) {
-      // Видаліть айтем зі списку, якщо він був видалений
+      // Remove the item from the list if it was deleted
       deleteItem(item);
     }
     if (result != null) {
@@ -112,6 +115,43 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _fetchSelectedCurrencySymbol() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .then((snapshot) {
+        final userData = snapshot.data();
+        if (userData != null && userData['selectedCurrency'] != null) {
+          final selectedCurrency = userData['selectedCurrency'];
+          currencySymbol = getCurrencySymbol(selectedCurrency);
+          setState(() {});
+        }
+      });
+    }
+  }
+
+  String getCurrencySymbol(String currencyCode) {
+    final format =
+    NumberFormat.simpleCurrency(locale: 'en_US', name: currencyCode);
+    final symbol = format.currencySymbol;
+    return symbol;
+  }
+
+  void navigateToProfileScreen(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileScreen(selectedCurrency: currencySymbol),
+      ),
+    );
+    if (result != null) {
+      // Handle the result if needed
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     items.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
@@ -128,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Align(
               alignment: Alignment.center,
               child: Text(
-                'Daily payment: \$${dailyPayment.toStringAsFixed(2)}',
+                'Daily payment: $currencySymbol${dailyPayment.toStringAsFixed(2)}',
                 style: const TextStyle(fontSize: 14.0),
               ),
             ),
@@ -156,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: Text(
                         'Purchase Date: ${DateFormat.yMd().format(items[index].purchaseDate)}'),
                     trailing: Text(
-                        '\$${items[index].calculateDailyPrice().toStringAsFixed(2)}'),
+                        '$currencySymbol${items[index].calculateDailyPrice().toStringAsFixed(2)}'),
                   ),
                 );
               },
@@ -164,16 +204,31 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      persistentFooterButtons: [
-        Center(
-          child: FloatingActionButton(
-            onPressed: () {
-              navigateToCreateItemScreen(context);
-            },
-            child: const Icon(Icons.add),
-          ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          navigateToCreateItemScreen(context);
+        },
+        child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Spacer(),
+            Container(
+              margin: const EdgeInsets.only(right: 16.0),
+              child: IconButton(
+                iconSize: 32.0, // Задаємо бажаний розмір іконки
+                icon: const Icon(Icons.account_circle_sharp),
+                onPressed: () {
+                  navigateToProfileScreen(context);
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
