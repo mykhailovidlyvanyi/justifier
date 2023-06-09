@@ -138,7 +138,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    'Need an account? Register',
+                    'Already have an account? Sign in here.',
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                       color: Colors.blue,

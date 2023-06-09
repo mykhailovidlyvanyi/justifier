@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    'Need an account? Register',
+                    'New here? Sign up.',
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                       color: Colors.blue,
