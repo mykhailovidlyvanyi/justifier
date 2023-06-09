@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Додано імпорт для Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,8 +41,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         .doc(user.uid)
         .set({
       'email': user.email,
-      'userId': user.uid, // Додано поле "userId" зі значенням користувача
-      // Додайте інші дані про користувача, які вам потрібні
+      'userId': user.uid,
     })
         .then((value) {
       print('Запис про користувача створено успішно');
@@ -56,6 +55,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
+    if (!isEmailValid(email)) {
+      showErrorMessage(context, 'Registration Error', 'Invalid email format. Please enter a valid email address.');
+      return;
+    }
+
+    if (isRestrictedDomain(email)) {
+      showErrorMessage(context, 'Registration Error', 'Registration is not allowed for this domain.');
+      return;
+    }
+
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -64,11 +73,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       User? user = userCredential.user;
       print('Успішна реєстрація. User ID: ${user?.uid}');
 
-      createUserDocument(user!); // Створення запису про користувача у Firestore
+      createUserDocument(user!);
 
       navigateToCurrencySelectionScreen(context);
     } catch (e) {
-      print('Помилка реєстрації: $e');
+      handleRegistrationError(context, e);
+    }
+  }
+
+  bool isEmailValid(String email) {
+    return RegExp(r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$').hasMatch(email);
+  }
+
+  bool isRestrictedDomain(String email) {
+    return email.endsWith('.ru') || email.endsWith('.by');
+  }
+
+  void handleRegistrationError(BuildContext context, dynamic error) {
+    if (error is FirebaseAuthException) {
+      if (error.code == 'email-already-in-use') {
+        print('Помилка реєстрації: Користувач з таким імейлом вже існує');
+        showErrorMessage(context, 'Registration Error', 'User with this email already exists.');
+      } else if (error.code == 'weak-password') {
+        print('Помилка реєстрації: Використаний непідходящий пароль');
+        showErrorMessage(context, 'Registration Error', 'Invalid password. Please choose a stronger password.');
+      } else if (error.code == 'invalid-email') {
+        print('Помилка реєстрації: Введений неправильний формат електронної пошти');
+        showErrorMessage(context, 'Registration Error', 'Invalid email format. Please enter a valid email address.');
+      } else {
+        print('Помилка реєстрації: $error');
+        showErrorMessage(context, 'Registration Error', 'An error occurred during registration.');
+      }
+    } else {
+      print('Помилка реєстрації: $error');
+      showErrorMessage(context, 'Registration Error', 'An error occurred during registration.');
     }
   }
 
@@ -89,6 +127,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           return child;
         },
       ),
+    );
+  }
+
+  void showErrorMessage(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
