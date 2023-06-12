@@ -172,9 +172,10 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
       saveSelectedCurrency(selectedCurrency!.code);
     }
 
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => HomeScreen()),
+          (route) => false, // Видаляє всі попередні маршрути зі стеку
     );
   }
 
