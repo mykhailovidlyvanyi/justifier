@@ -36,17 +36,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void createUserDocument(User user) {
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .set({
+    FirebaseFirestore.instance.collection('users').doc(user.uid).set({
       'email': user.email,
       'userId': user.uid,
-    })
-        .then((value) {
+      'creationTime': DateTime.now(), // Додайте поле Creation date з поточною датою
+      'expirationTime': DateTime.now(), // Додайте поле Expiration date зі значенням null
+      'isPaid': false, // Додайте поле Is paid зі значенням "no"
+    }).then((value) {
       print('Запис про користувача створено успішно');
-    })
-        .catchError((error) {
+    }).catchError((error) {
       print('Помилка при створенні запису про користувача: $error');
     });
   }
