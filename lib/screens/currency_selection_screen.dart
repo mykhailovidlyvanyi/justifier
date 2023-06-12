@@ -75,6 +75,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                     // Активація поля пошуку при натисканні
                     searchFocusNode.requestFocus();
                   },
+                  textCapitalization: TextCapitalization.sentences, // капіталізація поля вводу
                   onChanged: (value) {
                     filterCurrencyList(value);
                   },

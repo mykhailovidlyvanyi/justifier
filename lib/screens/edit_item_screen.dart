@@ -212,6 +212,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                 decoration: InputDecoration(
                   labelText: 'Item Name',
                 ),
+                textCapitalization: TextCapitalization.sentences, // капіталізація поля вводу
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter an item name';
