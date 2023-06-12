@@ -37,6 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
+    if (email.isEmpty || password.isEmpty) {
+      showErrorMessage(context, 'Login error', 'Please fill in all fields for successful login.');
+      return;
+    }
+
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -48,10 +53,36 @@ class _LoginScreenState extends State<LoginScreen> {
       // Ваш код після успішного входу
       navigateToHomeScreen(context);
     } catch (e) {
-      // Помилка входу, обробіть відповідно
-      print('Помилка входу: $e');
-      // Обробка помилки входу
+      handleLoginError(context, e);
     }
+  }
+
+  void handleLoginError(BuildContext context, dynamic error) {
+    String errorMessage = 'Login error';
+
+    switch (error.code) {
+      case 'invalid-email':
+        errorMessage = 'Invalid email address.';
+        break;
+      case 'user-disabled':
+        errorMessage = 'Your account has been disabled.';
+        break;
+      case 'user-not-found':
+        errorMessage = 'Email and password combination not found.';
+        break;
+      case 'wrong-password':
+        errorMessage = 'Email and password combination not found.';
+        break;
+      case 'too-many-requests':
+        errorMessage = 'Too many unsuccessful login attempts. Please try again later.';
+        break;
+      case 'operation-not-allowed':
+        errorMessage = 'Login operation is not allowed.';
+        break;
+    }
+
+    showErrorMessage(context, 'Login error', errorMessage);
+    print('Login error: $error');
   }
 
   void navigateToHomeScreen(BuildContext context) {
@@ -71,6 +102,26 @@ class _LoginScreenState extends State<LoginScreen> {
           return child;
         },
       ),
+    );
+  }
+
+  void showErrorMessage(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
