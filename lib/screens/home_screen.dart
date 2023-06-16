@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Item> items = [];
   double dailyPayment = 0.0;
   String currencySymbol = '\$'; // Default currency symbol
+  bool isPaid = false; // Added isPaid variable
 
   @override
   void initState() {
@@ -67,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CreateItemScreen(),
+        builder: (context) => CreateItemScreen(isPaid: isPaid), // Pass isPaid to CreateItemScreen
       ),
     );
     if (result != null) {
@@ -79,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditItemScreen(item: item),
+        builder: (context) => EditItemScreen(item: item, isPaid: isPaid), // Pass isPaid to EditItemScreen
       ),
     );
     if (result == false) {
@@ -129,6 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
           currencySymbol = getCurrencySymbol(selectedCurrency);
           setState(() {});
         }
+        if (userData != null && userData['isPaid'] != null) {
+          isPaid = userData['isPaid']; // Update isPaid value
+        }
       });
     }
   }
@@ -144,7 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfileScreen(selectedCurrency: currencySymbol),
+        builder: (context) => ProfileScreen(
+          selectedCurrency: currencySymbol,
+          isPaid: isPaid, // Pass isPaid to ProfileScreen
+        ),
       ),
     );
     if (result != null) {

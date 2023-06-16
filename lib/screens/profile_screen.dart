@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../screens/currency_selection_screen.dart'; // Імпорт екрану вибору валюти
+import '../screens/currency_selection_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String selectedCurrency; // Доданий параметр конструктора
+  final String selectedCurrency;
+  final bool isPaid;
 
-  const ProfileScreen({Key? key, required this.selectedCurrency}) : super(key: key);
+  const ProfileScreen({Key? key, required this.isPaid, required this.selectedCurrency}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late String selectedCurrency; // Видалено ініціалізацію, оскільки валюта передається через конструктор
+  late String selectedCurrency;
+  late String accountType;
 
   @override
   void initState() {
     super.initState();
-    selectedCurrency = widget.selectedCurrency; // Отримати валюту з параметра конструктора
+    selectedCurrency = widget.selectedCurrency;
+    accountType = getAccountType(); // Отримати тип облікового запису користувача
+  }
+
+  String getAccountType() {
+    return widget.isPaid ? 'Pro' : 'Free'; // Визначити тип облікового запису користувача в залежності від isPaid
   }
 
   void _navigateToCurrencySelectionScreen(BuildContext context) async {
@@ -30,11 +37,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (result != null) {
-      // Оновити вибрану валюту після вибору на екрані вибору валюти
       setState(() {
         selectedCurrency = result;
       });
-      _saveSelectedCurrency(result); // Зберегти вибрану валюту
+      _saveSelectedCurrency(result);
     }
   }
 
@@ -56,10 +62,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView.separated(
-          itemCount: 2, // Кількість елементів у списку (2 рядки)
+          itemCount: 3,
           itemBuilder: (context, index) {
             if (index == 0) {
-              // Перший рядок з текстом "Selected Currency" і символом валюти
               return GestureDetector(
                 onTap: () {
                   _navigateToCurrencySelectionScreen(context);
@@ -86,7 +91,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             } else if (index == 1) {
-              // Другий рядок з текстом "TBD"
+              return ListTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Account type:',
+                      style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      accountType, // Відображати значення типу облікового запису
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
+              );
+            } else if (index == 2) {
               return ListTile(
                 title: Text(
                   'TBD',
@@ -94,11 +114,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             } else {
-              return SizedBox(); // Якщо є більше рядків, що необхідно додати, можна використовувати подібний шаблон
+              return SizedBox();
             }
           },
           separatorBuilder: (context, index) {
-            // Горизонтальна лінія-роздільник між рядками
             return Divider(
               thickness: 1.0,
               color: Colors.grey,

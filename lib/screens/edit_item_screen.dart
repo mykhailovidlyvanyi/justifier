@@ -8,8 +8,9 @@ import '../models/item.dart';
 
 class EditItemScreen extends StatefulWidget {
   final Item item;
+  final bool isPaid; // Додано змінну isPaid
 
-  const EditItemScreen({Key? key, required this.item}) : super(key: key);
+  const EditItemScreen({Key? key, required this.isPaid, required this.item}) : super(key: key);
 
   @override
   _EditItemScreenState createState() => _EditItemScreenState();

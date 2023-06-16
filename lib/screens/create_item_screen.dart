@@ -7,7 +7,9 @@ import 'package:uuid/uuid.dart';
 import '../models/item.dart';
 
 class CreateItemScreen extends StatefulWidget {
-  const CreateItemScreen({Key? key}) : super(key: key);
+  final bool isPaid; // Додайте параметр isPaid
+
+  const CreateItemScreen({Key? key, required this.isPaid}) : super(key: key);
 
   @override
   _CreateItemScreenState createState() => _CreateItemScreenState();
