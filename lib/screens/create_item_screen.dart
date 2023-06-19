@@ -50,12 +50,18 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
       final itemId = Uuid().v4();
       print(itemId);
 
+      final subitem = SubItem(
+        subitemId: Uuid().v4(),
+        subitemType: 'main', // Зміна значення на "main"
+        subitemName: itemName!, // Використання значення з текстового поля
+        subitemPurchasePrice: double.parse(_priceController.text.replaceAll(',', '.')),
+        subitemPurchaseDate: selectedDate!,
+      );
+
       final item = Item(
         id: itemId,
-        name: itemName!,
-        purchasePrice: purchasePrice!,
-        purchaseDate: selectedDate!,
         userId: FirebaseAuth.instance.currentUser!.uid,
+        subitems: [subitem],
       );
 
       try {
@@ -80,6 +86,7 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

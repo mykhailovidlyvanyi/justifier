@@ -1,41 +1,71 @@
 import 'package:intl/intl.dart';
 
+class SubItem {
+  final String subitemId;
+  final String subitemType;
+  final String subitemName;
+  final double subitemPurchasePrice;
+  final DateTime subitemPurchaseDate;
+
+  SubItem({
+    required this.subitemId,
+    required this.subitemType,
+    required this.subitemName,
+    required this.subitemPurchasePrice,
+    required this.subitemPurchaseDate,
+  });
+
+}
+
 class Item {
   final String? id;
-  final String name;
-  final double purchasePrice;
-  final DateTime purchaseDate;
-  String userId; // Додано поле userId
+  final String userId;
+  List<SubItem> subitems;
 
   Item({
     this.id,
-    required this.name,
-    required this.purchasePrice,
-    required this.purchaseDate,
     required this.userId,
+    this.subitems = const [],
   });
 
   Item.fromMap(Map<String, dynamic> map)
       : id = map['id'],
-        name = map['name'],
-        purchasePrice = map['purchasePrice'],
-        purchaseDate = DateTime.parse(map['purchaseDate']),
-        userId = map['userId'];
+        userId = map['userId'],
+        subitems = (map['subitems'] as List<dynamic>?)
+            ?.map((subitemMap) => SubItem(
+          subitemId: subitemMap['subitemId'],
+          subitemType: subitemMap['subitemType'],
+          subitemName: subitemMap['subitemName'],
+          subitemPurchasePrice: subitemMap['subitemPurchasePrice'].toDouble(),
+          subitemPurchaseDate:
+          DateTime.parse(subitemMap['subitemPurchaseDate']),
+        ))
+            .toList() ?? [];
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
-      'purchasePrice': purchasePrice,
-      'purchaseDate': purchaseDate.toIso8601String(),
       'userId': userId,
+      'subitems': subitems.map((subitem) => {
+        'subitemId': subitem.subitemId,
+        'subitemType': subitem.subitemType,
+        'subitemName': subitem.subitemName,
+        'subitemPurchasePrice': subitem.subitemPurchasePrice,
+        'subitemPurchaseDate':
+        subitem.subitemPurchaseDate.toIso8601String(),
+      }).toList(),
     };
   }
 
   double calculateDailyPrice() {
     final now = DateTime.now();
-    final daysSincePurchase = now.difference(purchaseDate).inDays;
-    return purchasePrice / (daysSincePurchase + 1);
+    double totalPrice = 0.0;
+
+    for (final subitem in subitems) {
+      final daysSincePurchase = now.difference(subitem.subitemPurchaseDate).inDays;
+      totalPrice += subitem.subitemPurchasePrice / (daysSincePurchase + 1);
+    }
+
+    return totalPrice;
   }
 }
-

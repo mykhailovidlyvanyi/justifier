@@ -161,7 +161,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    items.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+    items.sort((a, b) {
+      final subitemA = a.subitems.firstWhere((subitem) => subitem.subitemType == 'main');
+      final subitemB = b.subitems.firstWhere((subitem) => subitem.subitemType == 'main');
+      return subitemB.subitemPurchaseDate.compareTo(subitemA.subitemPurchaseDate);
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -194,16 +198,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListView.builder(
               itemCount: items.length,
               itemBuilder: (context, index) {
+                final subitem = items[index].subitems.firstWhere((subitem) => subitem.subitemType == 'main');
+
                 return GestureDetector(
                   onTap: () {
                     navigateToEditItemScreen(context, items[index]);
                   },
                   child: ListTile(
-                    title: Text(items[index].name),
-                    subtitle: Text(
-                        'Purchase Date: ${DateFormat.yMd().format(items[index].purchaseDate)}'),
-                    trailing: Text(
-                        '$currencySymbol${items[index].calculateDailyPrice().toStringAsFixed(2)}'),
+                    title: Text('${subitem.subitemName}'),
+                    subtitle: Text('Purchase Date: ${DateFormat.yMd().format(subitem.subitemPurchaseDate)}'),
+                    trailing: Text('${currencySymbol}${items[index].calculateDailyPrice().toStringAsFixed(2)}'),
                   ),
                 );
               },
