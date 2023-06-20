@@ -26,6 +26,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
   late DateTime subitemSelectedDate;
   late String subitemType;
   late String currentUserId;
+  late bool isPaid;
 
   List<SubItem> updatedSubitems = [];
 
@@ -279,29 +280,41 @@ class _EditItemScreenState extends State<EditItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Edit Item',
-          style: TextStyle(fontSize: 16.0),
-        ),
-        actions: <Widget>[
-          PopupMenuButton(
-            icon: Icon(Icons.more_vert, size: 20.0),
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  child: ListTile(
-                    dense: true,
-                    leading: Icon(Icons.delete, size: 20.0, color: Colors.red),
-                    title: Text(
-                      'Delete',
-                      style: TextStyle(fontSize: 14.0, color: Colors.red),
+        title: Text('Edit Item'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text('Confirm Deletion'),
+                  content: Text('Are you sure you want to delete this item?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
                     ),
-                    onTap: () {
-                      _deleteItem(context);
-                    },
-                  ),
+                    TextButton(
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent), // Встановити прозорий фоновий колір кнопки
+                      ),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        _deleteItem(context);
+                      },
+                    ),
+                  ],
                 ),
-              ];
+              );
             },
           ),
         ],
@@ -385,9 +398,9 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     );
                   },
                 ),
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () => _addSubItem(context),
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: widget.isPaid ? () => _addSubItem(context) : null,
                 ),
               ],
             ),
