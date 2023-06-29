@@ -190,6 +190,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                 children: [
                   TextFormField(
                     decoration: InputDecoration(labelText: 'Subitem Name'),
+                    textCapitalization: TextCapitalization.sentences,
                     onChanged: (value) {
                       newSubitemName = value;
                     },
