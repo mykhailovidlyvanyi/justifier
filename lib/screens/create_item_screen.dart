@@ -127,7 +127,7 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                     return 'Please enter a purchase price';
                   }
                   final price = double.tryParse(value.replaceAll(',', '.'));
-                  if (price == null || price <= 0) {
+                  if (price == null || price < 0) {
                     return 'Please enter a valid purchase price';
                   }
                   return null;
