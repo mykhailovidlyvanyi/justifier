@@ -197,7 +197,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: 'Subitem Purchase Price'),
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                     onChanged: (value) {
                       newSubitemPurchasePrice = double.parse(value);
                     },
@@ -346,7 +346,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Purchase Price'),
                   controller: _priceController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   onSaved: (value) {
                     subitemPurchasePrice = double.parse(value!);
                   },
@@ -354,7 +354,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     if (value!.isEmpty) {
                       return 'Please enter a purchase price.';
                     }
-                    if (double.tryParse(value) == null) {
+                    if (double.tryParse(value.replaceAll(',', '.')) == null) {
                       return 'Please enter a valid number.';
                     }
                     return null;
