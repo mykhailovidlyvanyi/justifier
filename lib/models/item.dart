@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class SubItem {
   final String subitemId;
   final String subitemType;

@@ -10,7 +10,7 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key, required this.isPaid, required this.selectedCurrency}) : super(key: key);
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CurrencySelectionScreen(),
+        builder: (context) => const CurrencySelectionScreen(),
       ),
     );
 
@@ -73,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Selected Currency:',
                         style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                       ),
@@ -81,9 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           Text(
                             selectedCurrency,
-                            style: TextStyle(fontSize: 16.0),
+                            style: const TextStyle(fontSize: 16.0),
                           ),
-                          Icon(Icons.arrow_forward_ios),
+                          const Icon(Icons.arrow_forward_ios),
                         ],
                       ),
                     ],
@@ -95,30 +95,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Account type:',
                       style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       accountType, // Відображати значення типу облікового запису
-                      style: TextStyle(fontSize: 16.0),
+                      style: const TextStyle(fontSize: 16.0),
                     ),
                   ],
                 ),
               );
             } else if (index == 2) {
-              return ListTile(
+              return const ListTile(
                 title: Text(
                   'TBD',
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
               );
             } else {
-              return SizedBox();
+              return const SizedBox();
             }
           },
           separatorBuilder: (context, index) {
-            return Divider(
+            return const Divider(
               thickness: 1.0,
               color: Colors.grey,
             );

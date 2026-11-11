@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -64,5 +61,16 @@ class DefaultFirebaseOptions {
     projectId: 'justifier-73958',
     storageBucket: 'justifier-73958.appspot.com',
     iosBundleId: 'com.example.justifier',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCFKtp-fJ8wo19r9J0OzKjlJBBC4JkAP98',
+    appId: '1:226027760941:web:899c173fc9aa6fccbfb7a4',
+    messagingSenderId: '226027760941',
+    projectId: 'justifier-73958',
+    authDomain: 'justifier-73958.firebaseapp.com',
+    databaseURL: 'https://justifier-73958-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'justifier-73958.firebasestorage.app',
+    measurementId: 'G-F3EN8JEY65',
   );
 }

@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:firebase_core/firebase_core.dart';
-import '../firebase_options.dart';
 
 import '../screens/home_screen.dart';
 import '../screens/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -18,27 +16,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String databasePath = '';
-
-  @override
-  void initState() {
-    super.initState();
-    getDatabasePath();
-  }
-
-  void getDatabasePath() async {
-    String databasesPath = await getDatabasesPath();
-    setState(() {
-      databasePath = join(databasesPath, 'items.db');
-    });
-  }
-
-  Future<void> loginUser(BuildContext context) async {
+  Future<void> loginUser() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      showErrorMessage(context, 'Login error', 'Please fill in all fields for successful login.');
+      showErrorMessage(
+        context,
+        'Login error',
+        'Please fill in all fields for successful login.',
+      );
       return;
     }
 
@@ -47,12 +34,16 @@ class _LoginScreenState extends State<LoginScreen> {
         email: email,
         password: password,
       );
-      // Вхід успішний, ви можете виконати необхідні дії після входу
+
+      if (!mounted) return;
+
       User? user = userCredential.user;
-      print('Успішний вхід. User ID: ${user?.uid}');
-      // Ваш код після успішного входу
+      debugPrint('Успішний вхід. User ID: ${user?.uid}');
+
       navigateToHomeScreen(context);
     } catch (e) {
+      if (!mounted) return;
+
       handleLoginError(context, e);
     }
   }
@@ -82,13 +73,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     showErrorMessage(context, 'Login error', errorMessage);
-    print('Login error: $error');
+    debugPrint('Login error: $error');
   }
 
   void navigateToHomeScreen(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
   }
 
@@ -96,8 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => RegistrationScreen(),
-        transitionDuration: Duration(seconds: 0),
+        pageBuilder: (context, animation, secondaryAnimation) => const RegistrationScreen(),
+        transitionDuration: const Duration(seconds: 0),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return child;
         },
@@ -114,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -129,10 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -142,24 +133,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextField(
                     controller: _emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                     ),
                     keyboardType: TextInputType.emailAddress, // Встановлення типу клавіатури на електронну адресу
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextField(
                     controller: _passwordController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                     ),
                     keyboardType: TextInputType.visiblePassword, // Встановлення типу клавіатури на видимий пароль
                     obscureText: true,
                   ),
-                  SizedBox(height: 32.0),
+                  const SizedBox(height: 32.0),
                   ElevatedButton(
-                    onPressed: () => loginUser(context),
-                    child: Text('Login'),
+                    onPressed: loginUser,
+                    child: const Text('Login'),
                   ),
                 ],
               ),
@@ -168,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () => navigateToRegistrationScreen(context),
-                child: Padding(
+                child: const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'New here? Sign up.',

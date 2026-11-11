@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../screens/home_screen.dart';
 import '../models/item.dart';
 
 class EditItemScreen extends StatefulWidget {
@@ -13,7 +12,7 @@ class EditItemScreen extends StatefulWidget {
   const EditItemScreen({Key? key, required this.isPaid, required this.item}) : super(key: key);
 
   @override
-  _EditItemScreenState createState() => _EditItemScreenState();
+  State<EditItemScreen> createState() => _EditItemScreenState();
 }
 
 class _EditItemScreenState extends State<EditItemScreen> {
@@ -63,7 +62,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
     }
   }
 
-  void _submitForm(BuildContext context) async {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final updatedMainSubitem = SubItem(
@@ -85,20 +84,22 @@ class _EditItemScreenState extends State<EditItemScreen> {
       try {
         final itemRef = FirebaseFirestore.instance.collection('items').doc(widget.item.id.toString());
         final currentItemSnapshot = await itemRef.get();
+        if (!mounted) return;
         final currentItemUserId = currentItemSnapshot['userId'];
 
         if (currentItemUserId == currentUserId) {
           await itemRef.update(updatedItem.toMap());
+          if (!mounted) return;
           Navigator.pop(context, updatedItem);
         } else {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text('Access Denied'),
-              content: Text('You do not have permission to edit this item.'),
+              title: const Text('Access Denied'),
+              content: const Text('You do not have permission to edit this item.'),
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(ctx).pop();
                   },
@@ -108,14 +109,15 @@ class _EditItemScreenState extends State<EditItemScreen> {
           );
         }
       } catch (error) {
+        if (!mounted) return;
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to update item.'),
+            title: const Text('Error'),
+            content: const Text('Failed to update item.'),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(ctx).pop();
                 },
@@ -127,24 +129,26 @@ class _EditItemScreenState extends State<EditItemScreen> {
     }
   }
 
-  void _deleteItem(BuildContext context) async {
+  Future<void> _deleteItem() async {
     try {
       final itemRef = FirebaseFirestore.instance.collection('items').doc(widget.item.id.toString());
       final currentItemSnapshot = await itemRef.get();
+      if (!mounted) return;
       final currentItemUserId = currentItemSnapshot['userId'];
 
       if (currentItemUserId == currentUserId) {
         await itemRef.delete();
+        if (!mounted) return;
         Navigator.pop(context, false);
       } else {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text('Access Denied'),
-            content: Text('You do not have permission to delete this item.'),
+            title: const Text('Access Denied'),
+            content: const Text('You do not have permission to delete this item.'),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(ctx).pop();
                 },
@@ -154,14 +158,15 @@ class _EditItemScreenState extends State<EditItemScreen> {
         );
       }
     } catch (error) {
+      if (!mounted) return;
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Error'),
-          content: Text('Failed to delete item.'),
+          title: const Text('Error'),
+          content: const Text('Failed to delete item.'),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(ctx).pop();
               },
@@ -182,22 +187,22 @@ class _EditItemScreenState extends State<EditItemScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Subitem'),
+          title: const Text('Add Subitem'),
           content: SingleChildScrollView(
             child: Form(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'Subitem Name'),
+                    decoration: const InputDecoration(labelText: 'Subitem Name'),
                     textCapitalization: TextCapitalization.sentences,
                     onChanged: (value) {
                       newSubitemName = value;
                     },
                   ),
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'Subitem Purchase Price'),
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(labelText: 'Subitem Purchase Price'),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (value) {
                       newSubitemPurchasePrice = double.parse(value);
                     },
@@ -219,18 +224,16 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     child: Row(
                       children: <Widget>[
                         Text(
-                          newSubitemSelectedDate == null
-                              ? 'Select Date'
-                              : DateFormat('MM/dd/yyyy').format(newSubitemSelectedDate),
-                          style: TextStyle(fontSize: 16.0),
+                          DateFormat('MM/dd/yyyy').format(newSubitemSelectedDate),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ],
                     ),
                   ),
                   DropdownButtonFormField(
-                    value: newSubitemType,
-                    decoration: InputDecoration(labelText: 'Subitem Type'),
-                    items: [
+                    initialValue: newSubitemType,
+                    decoration: const InputDecoration(labelText: 'Subitem Type'),
+                    items: const [
                       DropdownMenuItem(
                         value: 'upgrade',
                         child: Text('Upgrade'),
@@ -250,13 +253,13 @@ class _EditItemScreenState extends State<EditItemScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Add'),
+              child: const Text('Add'),
               onPressed: () {
                 setState(() {
                   final newSubitem = SubItem(
@@ -281,37 +284,37 @@ class _EditItemScreenState extends State<EditItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Item'),
+        title: const Text('Edit Item'),
         actions: [
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: Text('Confirm Deletion'),
-                  content: Text('Are you sure you want to delete this item?'),
+                  title: const Text('Confirm Deletion'),
+                  content: const Text('Are you sure you want to delete this item?'),
                   actions: <Widget>[
                     TextButton(
-                      child: Text('Cancel'),
+                      child: const Text('Cancel'),
                       onPressed: () {
                         Navigator.of(ctx).pop();
                       },
                     ),
                     TextButton(
-                      child: Text(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(Colors.transparent), // Встановити прозорий фоновий колір кнопки
+                      ),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        _deleteItem();
+                      },
+                      child: const Text(
                         'Delete',
                         style: TextStyle(
                           color: Colors.red,
                         ),
                       ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent), // Встановити прозорий фоновий колір кнопки
-                      ),
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        _deleteItem(context);
-                      },
                     ),
                   ],
                 ),
@@ -329,7 +332,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Item Name'),
+                  decoration: const InputDecoration(labelText: 'Item Name'),
                   initialValue: subitemName,
                   textCapitalization: TextCapitalization.sentences,
                   onSaved: (value) {
@@ -342,11 +345,11 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Purchase Price'),
+                  decoration: const InputDecoration(labelText: 'Purchase Price'),
                   controller: _priceController,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   onSaved: (value) {
                     subitemPurchasePrice = double.parse(value!);
                   },
@@ -360,24 +363,22 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 10.0),
-                SizedBox(height: 10.0),
+                const SizedBox(height: 10.0),
+                const SizedBox(height: 10.0),
                 TextButton(
                   onPressed: () => _selectDate(context),
                   child: Text(
-                    subitemSelectedDate == null
-                        ? 'Select Date'
-                        : DateFormat.yMd().format(subitemSelectedDate!),
+                    DateFormat.yMd().format(subitemSelectedDate),
                   ),
                 ),
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: updatedSubitems.length,
                   itemBuilder: (ctx, index) {
                     final subitem = updatedSubitems[index];
                     if (subitem.subitemType == "main") {
-                      return SizedBox.shrink(); // Не включати subitem з типом "main" до списку
+                      return const SizedBox.shrink(); // Не включати subitem з типом "main" до списку
                     }
                     return ListTile(
                       title: Text(subitem.subitemName),
@@ -389,7 +390,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                         ],
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: const Icon(Icons.delete),
                         onPressed: () {
                           setState(() {
                             updatedSubitems.removeAt(index);
@@ -400,7 +401,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                   },
                 ),
             IconButton(
-              icon: Icon(Icons.add),
+              icon: const Icon(Icons.add),
               onPressed: widget.isPaid ? () => _addSubItem(context) : null,
                 ),
               ],
@@ -408,16 +409,14 @@ class _EditItemScreenState extends State<EditItemScreen> {
           ),
         ),
       ),
-        bottomNavigationBar: Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-            onPressed: () {
-              _submitForm(context);
-            },
-                child: Text('Save'),
-            ),
+      bottomNavigationBar: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: _submitForm,
+          child: const Text('Save'),
         ),
+      ),
     );
   }
 }

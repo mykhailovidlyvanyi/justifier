@@ -30,8 +30,6 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.18.1
-  sqflite: ^2.0.0
-  path: ^1.8.0
   uuid: ^3.0.4
   visibility_detector: ^0.2.0
   geolocator: ^8.0.1

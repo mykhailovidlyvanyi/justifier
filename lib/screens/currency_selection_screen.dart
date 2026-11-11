@@ -5,8 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CurrencySelectionScreen extends StatefulWidget {
+  const CurrencySelectionScreen({super.key});
+
   @override
-  _CurrencySelectionScreenState createState() => _CurrencySelectionScreenState();
+  State<CurrencySelectionScreen> createState() => _CurrencySelectionScreenState();
 }
 
 class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
@@ -18,7 +20,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
   TextEditingController searchController = TextEditingController();
   FocusNode searchFocusNode = FocusNode();
 
-  FirebaseAuth _auth = FirebaseAuth.instance; // Додано оголошення FirebaseAuth
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Додано оголошення FirebaseAuth
 
   @override
   void initState() {
@@ -28,12 +30,12 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
 
   TextStyle _getItemTextStyle(bool isSelected) {
     if (isSelected) {
-      return TextStyle(
+      return const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
       );
     }
-    return TextStyle();
+    return const TextStyle();
   }
 
   void filterCurrencyList(String query) {
@@ -54,7 +56,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Currency'),
+        title: const Text('Select Currency'),
       ),
       body: GestureDetector(
         onTap: () {
@@ -66,7 +68,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: FocusScope(
                 child: TextField(
                   controller: searchController,
@@ -81,7 +83,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                   },
                   decoration: InputDecoration(
                     labelText: 'Search Currency',
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
@@ -106,11 +108,11 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Помилка'),
-                              content: Text('Дана валюта може бути вибрана виключно після виплати усіх репарацій.'),
+                              title: const Text('Помилка'),
+                              content: const Text('Дана валюта може бути вибрана виключно після виплати усіх репарацій.'),
                               actions: [
                                 TextButton(
-                                  child: Text('OK'),
+                                  child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
@@ -137,7 +139,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
       ),
       bottomNavigationBar: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
             if (selectedCurrency != null && (selectedCurrency!.code == 'RUB' || selectedCurrency!.code == 'BYN')) {
@@ -145,11 +147,11 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Помилка'),
-                    content: Text('Неможливо зберегти російський рубль або білоруський рубль.'),
+                    title: const Text('Помилка'),
+                    content: const Text('Неможливо зберегти російський рубль або білоруський рубль.'),
                     actions: [
                       TextButton(
-                        child: Text('OK'),
+                        child: const Text('OK'),
                         onPressed: () {
                           Navigator.pop(context);
                         },
@@ -162,7 +164,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
               navigateToHomeScreen(context);
             }
           },
-          child: Text('Save'),
+          child: const Text('Save'),
         ),
       ),
     );
@@ -175,7 +177,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
           (route) => false, // Видаляє всі попередні маршрути зі стеку
     );
   }
@@ -188,10 +190,10 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
           .doc(user.uid)
           .update({'selectedCurrency': currencyCode})
           .then((value) {
-        print('Інформацію про вибрану валюту оновлено успішно');
+        debugPrint('Інформацію про вибрану валюту оновлено успішно');
       })
           .catchError((error) {
-        print('Помилка під час оновлення інформації про вибрану валюту: $error');
+        debugPrint('Помилка під час оновлення інформації про вибрану валюту: $error');
       });
     }
   }

@@ -6,14 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/item.dart';
 import '../screens/create_item_screen.dart';
 import '../screens/edit_item_screen.dart';
-import '../screens/registration_screen.dart';
 import '../screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -59,8 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
     calculateDailyPayment();
   }
 
-  Future<void> logout(BuildContext context) async {
+  Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
+
+    if (!mounted) return;
+
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -172,9 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
+            const Align(
               alignment: Alignment.center,
-              child: const Text('Justifier'),
+              child: Text('Justifier'),
             ),
             Align(
               alignment: Alignment.center,
@@ -188,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
-            onPressed: () => logout(context),
+            onPressed: logout,
           ),
         ],
       ),
@@ -205,9 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     navigateToEditItemScreen(context, items[index]);
                   },
                   child: ListTile(
-                    title: Text('${subitem.subitemName}'),
+                    title: Text(subitem.subitemName),
                     subtitle: Text('Purchase Date: ${DateFormat.yMd().format(subitem.subitemPurchaseDate)}'),
-                    trailing: Text('${currencySymbol}${items[index].calculateDailyPrice().toStringAsFixed(2)}'),
+                    trailing: Text('$currencySymbol${items[index].calculateDailyPrice().toStringAsFixed(2)}'),
                   ),
                 );
               },
@@ -226,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Spacer(),
+            const Spacer(),
             Container(
               margin: const EdgeInsets.only(right: 16.0),
               child: IconButton(

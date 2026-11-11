@@ -12,7 +12,7 @@ class CreateItemScreen extends StatefulWidget {
   const CreateItemScreen({Key? key, required this.isPaid}) : super(key: key);
 
   @override
-  _CreateItemScreenState createState() => _CreateItemScreenState();
+  State<CreateItemScreen> createState() => _CreateItemScreenState();
 }
 
 class _CreateItemScreenState extends State<CreateItemScreen> {
@@ -43,47 +43,58 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
     }
   }
 
-  void _submitForm(BuildContext context) async {
-    if (_formKey.currentState!.validate() && selectedDate != null) {
-      _formKey.currentState!.save();
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate() || selectedDate == null) {
+      return;
+    }
 
-      final itemId = Uuid().v4();
-      print(itemId);
+    _formKey.currentState!.save();
 
-      final subitem = SubItem(
-        subitemId: Uuid().v4(),
-        subitemType: 'main', // Зміна значення на "main"
-        subitemName: itemName!, // Використання значення з текстового поля
-        subitemPurchasePrice: double.parse(_priceController.text.replaceAll(',', '.')),
-        subitemPurchaseDate: selectedDate!,
+    final itemId = const Uuid().v4();
+
+    final subitem = SubItem(
+      subitemId: const Uuid().v4(),
+      subitemType: 'main',
+      subitemName: itemName!,
+      subitemPurchasePrice: double.parse(
+        _priceController.text.replaceAll(',', '.'),
+      ),
+      subitemPurchaseDate: selectedDate!,
+    );
+
+    final item = Item(
+      id: itemId,
+      userId: FirebaseAuth.instance.currentUser!.uid,
+      subitems: [subitem],
+    );
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('items')
+          .doc(itemId)
+          .set(item.toMap());
+
+      if (!mounted) return;
+
+      Navigator.pop(context, item);
+    } catch (error) {
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Failed to save item.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
       );
-
-      final item = Item(
-        id: itemId,
-        userId: FirebaseAuth.instance.currentUser!.uid,
-        subitems: [subitem],
-      );
-
-      try {
-        await FirebaseFirestore.instance.collection('items').doc(itemId).set(item.toMap());
-        Navigator.pop(context, item);
-      } catch (error) {
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to save item.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      }
     }
   }
 
@@ -92,17 +103,17 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Item'),
+        title: const Text('Create Item'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Item Name',
                 ),
                 textCapitalization: TextCapitalization.sentences, // капіталізація поля вводу
@@ -118,10 +129,10 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
               ),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Purchase Price',
                 ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a purchase price';
@@ -138,14 +149,14 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                   parsedValue != null ? double.parse(parsedValue) : null;
                 },
               ),
-              SizedBox(height: 16.0),
-              Text(
+              const SizedBox(height: 16.0),
+              const Text(
                 'Purchase Date:',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               TextButton(
                 onPressed: () => _selectDate(context),
                 child: Text(
@@ -154,12 +165,10 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       : DateFormat.yMd().format(selectedDate!),
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: () {
-                  _submitForm(context);
-                },
-                child: Text('Save'),
+                onPressed: _submitForm,
+                child: const Text('Save'),
               ),
             ],
           ),

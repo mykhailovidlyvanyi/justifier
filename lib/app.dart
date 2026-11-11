@@ -7,12 +7,10 @@ import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';
 
 class MyApp extends StatefulWidget {
-  final String databasePath;
-
-  const MyApp({required this.databasePath});
+  const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -26,7 +24,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> checkUserExistence() async {
-    bool doesUserExist = await checkUserExistenceFirebase();
+    final bool doesUserExist = await checkUserExistenceFirebase();
+
+    if (!mounted) return;
+
     setState(() {
       currentUser = doesUserExist ? FirebaseAuth.instance.currentUser : null;
       isLoading = false;
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
           return true; // Користувач існує в Firebase
         }
       } catch (e) {
-        print('Помилка перевірки існування користувача: $e');
+        debugPrint('Помилка перевірки існування користувача: $e');
       }
     }
 
@@ -57,16 +58,16 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       // Показати спінер або екран завантаження, поки перевіряється користувач
-      return SplashScreen();
+      return const SplashScreen();
     } else {
       return MaterialApp(
         title: 'My App',
         initialRoute: '/',
         routes: {
-          '/': (context) => currentUser != null ? HomeScreen() : LoginScreen(),
-          '/registration': (context) => RegistrationScreen(),
-          '/login': (context) => LoginScreen(),
-          '/home': (context) => HomeScreen(),
+          '/': (context) => currentUser != null ? const HomeScreen() : const LoginScreen(),
+          '/registration': (context) => const RegistrationScreen(),
+          '/login': (context) => const LoginScreen(),
+          '/home': (context) => const HomeScreen(),
         },
       );
     }
